@@ -1,0 +1,160 @@
+/*---------------------------------------------------------------------------------
+
+    Template Name: Kanakku
+    Version      : 1.0
+    Author: Dreams Technologies
+    Author URI: https://themeforest.net/user/dreamstechnologies
+
+-----------------------------------------------------------------------------------
+
+/*============================
+[Table of CSS]
+
+1.variables
+2.mixins
+3.base
+4.background
+5.accordion
+6.alerts
+7.avatar
+8.badge
+9.boostrap
+10.border
+11.breadcrumb
+12.button
+13.calendar
+14.call
+15.cards
+16.chart
+17.dropdown
+18.file-manager
+19.file-upload
+20.font
+21.form-wizard
+22.forms
+23.grid
+24.icons
+25.incoming-call
+26.navs-tabs
+27.notes
+28.pagination
+29.popovers
+30.popup
+31.progress
+32.ribbon
+33.sweetalert
+34.tables
+35.timeline
+36.todo
+37.tooltips
+38.typography
+39.common
+40.content
+41.header
+42.notification
+43.sidebar
+
+============================*/
+
+
+/****** Utils ******/
+@import "utils/mixins";
+
+// Core files
+@import "../plugins/bootstrap/scss/functions";
+@import "../plugins/bootstrap/scss/variables";
+
+@import "variables";
+@import "variables-dark";
+@import "variables-custom";
+@import "theme-default";
+
+
+@import "../plugins/bootstrap/scss/bootstrap";
+
+// Components
+@import "components/utilities";
+@import "components/background";
+@import "components/accordions";
+@import "components/alert";
+@import "components/avatar";
+@import "components/breadcrumb";
+@import "components/buttons";
+@import "components/badge";
+@import "components/card";
+@import "components/dropdown";
+@import "components/forms";
+@import "components/modal";
+@import "components/nav";
+@import "components/pagination";
+@import "components/popover";
+@import "components/print";
+@import "components/progress";
+@import "components/reboot";
+@import "components/ribbons";
+@import "components/switch";
+@import "components/tables";
+@import "components/tooltip";
+@import "components/steps";
+@import "components/preloader";
+@import "components/widgets";
+@import "components/call";
+@import "components/chat";
+@import "components/file-manager";
+@import "components/incoming-call";
+@import "components/todo";
+@import "components/notes";
+
+/****** Layout ******/
+@import "layout/common";
+@import "layout/content";
+@import "layout/header";
+@import "layout/sidebar";
+@import "layout/notification";
+@import "layout/theme";
+@import "layout/theme-settings";
+
+/******* Pages ******/
+@import "pages/ui-pages";
+@import "pages/product";
+@import "pages/login";
+@import "pages/dashboard";
+@import "pages/blogs";
+@import "pages/membership-plans";
+@import "pages/other-invoice";
+@import "pages/purchase";
+@import "pages/settings";
+@import "pages/invoices";
+@import "pages/customer";
+@import "pages/report";
+@import "pages/pricing";
+@import "pages/components-demo";
+@import "pages/components-demo";
+
+
+// Plugins
+@import "plugins/apexcharts";
+@import "plugins/calendar";
+@import "plugins/choice";
+@import "plugins/gridjs";
+@import "plugins/swiper";
+@import "plugins/daterange";
+@import "plugins/flatpickr";
+@import "plugins/dragula";
+@import "plugins/dropzone";
+@import "plugins/form-wizard";
+@import "plugins/maps";
+@import "plugins/quill-editor";
+@import "plugins/select2";
+@import "plugins/simplebar";
+@import "plugins/leaflet-maps";
+@import "plugins/sweetalert2";
+@import "plugins/rangeslider";
+@import "plugins/datatables";
+@import "plugins/rangepicker-plugin";
+
+
+
+
+
+

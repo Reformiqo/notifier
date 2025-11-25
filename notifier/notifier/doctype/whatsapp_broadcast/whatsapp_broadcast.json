@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-14 12:09:22.292273",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_dh5z",
+  "broadcast_name",
+  "instance",
+  "status",
+  "column_break_bwal",
+  "template",
+  "group",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "broadcast_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Broadcast Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Template",
+   "options": "WhatsApp Template",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Draft\nScheduled\nSending\nSent\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_dh5z",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "group",
+   "fieldtype": "Link",
+   "label": "Group",
+   "options": "Contact Group",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instance",
+   "fieldtype": "Link",
+   "label": "Instance",
+   "link_filters": "[[\"WhatsApp Instance\",\"status\",\"=\",\"Open\"]]",
+   "options": "WhatsApp Instance",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bwal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "WhatsApp Broadcast",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-08-16 23:01:13.834810",
+ "modified_by": "Administrator",
+ "module": "Notifier",
+ "name": "WhatsApp Broadcast",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "queue_in_background": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

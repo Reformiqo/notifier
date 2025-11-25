@@ -1,0 +1,133 @@
+//
+// breadcrumb.scss
+//
+
+// Breadcrumb item arrow
+.breadcrumb-item {
+    a {
+        color: var(--#{$prefix}body-color);
+
+        &:hover {
+            color: var(--#{$prefix}primary);
+        }
+    }
+    +.breadcrumb-item {
+        &::before {
+            font-family: "tabler-icons";
+        }
+    }
+}
+
+
+
+
+
+.page-header-breadcrumb {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: var(--bs-breadcrumb-divider, "\ea65");
+		font-family: "tabler-icons" !important;
+	}
+}
+
+[dir="rtl"] {
+	.page-header-breadcrumb {
+		.breadcrumb-item+.breadcrumb-item::before {
+			content: var(--bs-breadcrumb-divider, "\ea64");
+			font-family: "tabler-icons" !important;
+		}
+	}
+}
+.breadcrumb {
+	.breadcrumb-item {
+		color: $gray-500;
+		font-weight: $font-weight-medium;
+
+		a {
+
+			&:hover {
+				color: $primary;
+			}
+		}
+
+		&.active {
+			color: var(--#{$prefix}gray-900);
+		}
+	}
+}
+.breadcrumb-arrow {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: var(--bs-breadcrumb-divider, "\ea65");
+		font-family: "tabler-icons" !important;
+	}
+}
+.breadcrumb-pipe {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: var(--bs-breadcrumb-divider, "\ea1f");
+		font-family: "tabler-icons" !important;
+	}
+}
+.breadcrumb-line {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: "-";
+		opacity: 1;
+	}
+}
+.breadcrumb-dot {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: "•";
+		opacity: 1;
+	}
+}
+.breadcrumb-divide {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: "/";
+		font-family: "tabler-icons" !important;
+	}
+}
+
+.breadcrumb-separatorless {
+	.breadcrumb-item+.breadcrumb-item::before {
+		content: "";
+		display: none;
+	}
+}
+.breadcrumb-colored {
+	padding: 12px 15px;
+	border-radius: $border-radius;
+
+	li {
+		a {
+			color: var(--#{$prefix}white);
+		}
+	}
+
+	.breadcrumb-item {
+		a {
+			color: var(--#{$prefix}white);
+		}
+
+		&.active {
+			color: var(--#{$prefix}white);
+			opacity: 0.8;
+		}
+
+		&+.breadcrumb-item {
+			a {
+				color: var(--#{$prefix}white);
+			}
+
+			&::before {
+				color: var(--#{$prefix}white);
+			}
+		}
+	}
+}
+
+.embedded-breadcrumb:before {
+	opacity: 0.7;
+}
+[data-theme-mode="dark"] {
+	.embedded-breadcrumb:before {
+		filter: invert(1);
+	}
+}

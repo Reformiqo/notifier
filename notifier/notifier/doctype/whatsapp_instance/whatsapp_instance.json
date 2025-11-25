@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2025-07-28 03:59:26.657242",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "label",
+  "phone_number",
+  "auto_reject_calls",
+  "always_online",
+  "read_message",
+  "read_status",
+  "column_break_gczr",
+  "qr_image",
+  "instance_id",
+  "token",
+  "section_break_yukr",
+  "qr_code",
+  "status",
+  "column_break_ijgv"
+ ],
+ "fields": [
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone Number",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Data",
+   "label": "Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "instance_id",
+   "fieldtype": "Data",
+   "label": "Instance ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gczr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_reject_calls",
+   "fieldtype": "Check",
+   "label": "Auto Reject Calls",
+   "set_only_once": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "always_online",
+   "fieldtype": "Check",
+   "label": "Always Online",
+   "set_only_once": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "read_message",
+   "fieldtype": "Check",
+   "label": "Read Message",
+   "set_only_once": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "read_status",
+   "fieldtype": "Check",
+   "label": "Read Status",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "section_break_yukr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "qr_code",
+   "fieldtype": "Attach Image",
+   "label": "QR Code",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "qr_image",
+   "fieldtype": "Image",
+   "label": "QR Image",
+   "no_copy": 1,
+   "options": "qr_code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ijgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Connecting",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "ignore_user_permissions": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Connecting\nOpen\nClosed"
+  },
+  {
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "label": "Label",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-09-04 01:42:33.521954",
+ "modified_by": "Administrator",
+ "module": "Notifier",
+ "name": "WhatsApp Instance",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "label, phone_number",
+ "show_title_field_in_link": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Purple",
+   "title": "Connecting"
+  },
+  {
+   "color": "Green",
+   "title": "Open"
+  },
+  {
+   "color": "Red",
+   "title": "Closed"
+  }
+ ],
+ "title_field": "label"
+}

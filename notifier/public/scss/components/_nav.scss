@@ -1,0 +1,162 @@
+//
+// tabs.scss
+//
+
+.nav-tabs,
+.nav-pills {
+    >li {
+        >a {
+            font-weight: $font-weight-medium;
+        }
+    }
+}
+
+.bg-nav-pills {
+    background-color: var(--#{$prefix}tertiary-bg);
+}
+
+//
+// nav-pills
+//
+
+@each $color,
+$value in $theme-colors {
+    .nav-pills-#{$color} {
+        --#{$prefix}nav-pills-link-active-bg: #{$value};
+        --#{$prefix}nav-link-hover-color: #{$value};
+    }
+}
+
+//
+// nav-bordered
+//
+
+.nav-tabs {
+    &.nav-bordered {
+            
+        border-bottom: 1px solid var(--#{$prefix}border-color);
+
+        .nav-item {
+
+            .nav-link {
+                border: 0;
+                
+                &.active {
+                    border-bottom: 2px solid var(--#{$prefix}primary);
+                }
+            }
+        }
+    }
+}
+
+@each $color,
+$value in $theme-colors {
+    .nav-tabs {
+        &.nav-bordered-#{$color} {
+
+            &.nav-tabs-top {
+                .nav-item {
+                    .nav-link {
+                        
+                        &:hover,
+                        &:focus {
+                            color: #{$value};
+                        }
+    
+                        &.active {
+                            border-top: 2px solid $value;
+                            border-bottom: 0;
+                            color: #{$value};
+                        }
+                    }
+                }
+                li {
+                    a {
+                        border-width: 0 0 2px 0;
+        
+                        &.active,
+                        &:hover {
+                            border-bottom-color: $primary;
+                            background: transparent;
+                            border-radius: 0;
+                            color: $primary;
+                        }
+                    }
+                }
+            }
+            .nav-item {
+                .nav-link {
+
+                    &:hover,
+                    &:focus {
+                        color: #{$value};
+                    }
+
+                    &.active {
+                        border-bottom: 2px solid $value;
+                        color: #{$value};
+                    }
+                }
+            }
+        }
+
+
+        &.nav-solid-#{$color} {
+            border: 0;
+    
+            &.nav-tabs-rounded {
+                li {
+                    a {
+                        border-radius: 50px;
+                        
+                        &:hover {
+                            border-color: transparent;
+                            color: $value;
+                        }
+                        &.active {
+                            background-color: $value;
+                            border-color: $value;
+                            color: $white;
+                            border-radius: 50px;
+                        }
+                    }
+                }
+            }
+    
+            &.nav-tabs-rounded-fill {
+                li {
+                    a {
+                        border-color: var(--#{$prefix}border-color);
+    
+                        &.active {
+                            background-color: $value;
+                            border-color: $value;
+                            color: $white;
+                            border-radius: 50px;
+                        }
+                    }
+                }
+            }
+    
+            li {
+                a { 
+                    &:hover {
+                        border-color: transparent;
+                        color: $value;
+                    }
+
+                    &.active {
+                        background-color: $value;
+                        border-color: $value;
+                        color: $white;
+                        border-radius: 0;
+    
+                        &:hover {
+                            color: $white;
+                        }
+                    }
+                }
+            }
+        }        
+    }
+}

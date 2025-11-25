@@ -1,0 +1,229 @@
+<style>
+    nav {
+    display: none;
+    visibility: hidden;
+}
+
+footer {
+    display: none;
+    visibility: hidden;
+}
+
+/* Force full width on all container elements */
+[data-doctype="Web Form"] .page_content {
+    max-width: 100% !important;
+    margin: 0;
+   
+}
+form {
+     padding-left:10px;
+     padding-right:10px;
+}
+
+
+/* Bootstrap-based input styles to match main design system */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+    /* Reset and base styles */
+    margin: 0 !important;
+    padding: 0.5rem 0 !important;
+    border: 1px solid #d2d6da !important;
+    border-radius: 0.375rem !important;
+    background-color: transparent !important;
+    color: #404040 !important;
+    font-family: Inter, Helvetica, Arial, sans-serif !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5rem !important;
+    outline: none !important;
+    transition: 0.2s ease !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    appearance: none !important;
+}
+
+/* Focus state */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    color: #404040 !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Hover state - removed as main design doesn't have hover states */
+/* Disabled state */
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="tel"]:disabled,
+input[type="date"]:disabled,
+input[type="password"]:disabled,
+input[type="number"]:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: #e5e5e5 !important;
+    opacity: 1 !important;
+    color: #525252 !important;
+    cursor: not-allowed !important;
+}
+
+/* Error state - using Bootstrap validation colors */
+input[type="text"].error,
+input[type="email"].error,
+input[type="tel"].error,
+input[type="date"].error,
+input[type="password"].error,
+input[type="number"].error,
+select.error,
+textarea.error {
+    border-color: #fd5c70 !important;
+    background-color: transparent !important;
+}
+
+/* Success state - using Bootstrap validation colors */
+input[type="text"].success,
+input[type="email"].success,
+input[type="tel"].success,
+input[type="date"].success,
+input[type="password"].success,
+input[type="number"].success,
+select.success,
+textarea.success {
+    border-color: #66d432 !important;
+    background-color: transparent !important;
+}
+
+/* Placeholder styling */
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="date"]::placeholder,
+input[type="password"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
+    color: #737373 !important;
+    opacity: 1 !important;
+}
+
+/* Select dropdown specific styling */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23262626' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0 center !important;
+    background-size: 16px 12px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    padding-right: 1rem !important;
+}
+
+/* Textarea specific styling */
+textarea {
+    min-height: unset !important;
+    resize: vertical !important;
+}
+
+/* Remove browser default styling */
+input[type="text"]::-webkit-outer-spin-button,
+input[type="text"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield !important;
+}
+
+/* Date input styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background-color: transparent !important;
+    color: #404040 !important;
+    cursor: pointer !important;
+}
+
+/* File input styling */
+input[type="file"] {
+    background-color: transparent !important;
+    border: 1px solid #d2d6da !important;
+    padding: 0.5rem 0 !important;
+    font-family: Inter, Helvetica, Arial, sans-serif !important;
+    font-size: 0.875rem !important;
+    color: #404040 !important;
+    overflow: hidden !important;
+}
+
+input[type="file"]:focus {
+    border-color: transparent !important;
+    background-color: transparent !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* File input button styling */
+input[type="file"]::file-selector-button {
+    padding: 0.5rem 0 !important;
+    margin: -0.5rem 0 !important;
+    margin-inline-end: 0 !important;
+    color: #404040 !important;
+    background-color: transparent !important;
+    pointer-events: none !important;
+    border-color: inherit !important;
+    border-style: solid !important;
+    border-width: 0 !important;
+    border-inline-end-width: 1px !important;
+    border-radius: 0 !important;
+    transition: all 0.15s ease-in !important;
+}
+
+/* Additional utility classes for different states */
+.input-readonly {
+    background-color: #e5e5e5 !important;
+    border-color: #d2d6da !important;
+    color: #525252 !important;
+    cursor: default !important;
+}
+
+.input-large {
+    padding: 0.75rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.5rem !important;
+}
+
+.input-small {
+    padding: 0.25rem 0.75rem !important;
+    font-size: 0.75rem !important;
+    border-radius: 0.125rem !important;
+}
+
+/* Form control plaintext variant */
+.form-control-plaintext {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.5rem 0 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.5rem !important;
+    color: #262626 !important;
+    background-color: transparent !important;
+    border: solid transparent !important;
+    border-width: 1px 0 !important;
+}
+
+.form-control-plaintext:focus {
+    outline: 0 !important;
+}
+</style>
