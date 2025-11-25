@@ -3,9 +3,6 @@ import requests
 import json
 import time
 from typing import Dict, List, Optional
-import frappe
-from evolutionapi.client import EvolutionClient
-from evolutionapi.models.message import TextMessage, QuotedMessage
 from frappe.utils.file_manager import save_file
 from datetime import datetime
 

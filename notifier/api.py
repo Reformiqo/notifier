@@ -1,7 +1,4 @@
 import frappe
-from evolutionapi.client import EvolutionClient
-from evolutionapi.models.message import TextMessage, QuotedMessage
-from evolutionapi.models.message import MediaMessage, MediaType
 import requests
 import uuid
 import base64
