@@ -7,9 +7,20 @@ from frappe.utils.file_manager import save_file
 from datetime import datetime
 
 
+def get_base_url():
+    """Get Evolution API base URL from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "base_url")
+    except Exception:
+        return None
 
-base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
-api_token = frappe.db.get_single_value("Evolution API Settings", "api_token")
+
+def get_api_token():
+    """Get Evolution API token from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "api_token")
+    except Exception:
+        return None
 
 # Add these to your existing code
 @frappe.whitelist(allow_guest=True)
@@ -33,6 +44,8 @@ def get_groups_with_contacts(instance):
 @frappe.whitelist(allow_guest=True) 
 def get_groups(instance):
     """Your existing function - kept as is"""
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/group/fetchAllGroups/{instance}?getParticipants=true"
     
     headers = {
@@ -100,6 +113,8 @@ def get_contact_info(instance: str, participant_id: str) -> Optional[Dict]:
 def fetch_profile_info(instance: str, participant_id: str) -> Optional[Dict]:
     """Try to fetch profile using Evolution API fetchProfile endpoint"""
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # Remove @lid suffix and try as phone number
         phone_candidate = participant_id.replace('@lid', '')
         
@@ -123,6 +138,8 @@ def fetch_profile_info(instance: str, participant_id: str) -> Optional[Dict]:
 def find_contact_info(instance: str, participant_id: str) -> Optional[Dict]:
     """Try to find contact using Evolution API findContacts endpoint"""
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         url = f"{base_url}/chat/findContacts"
         headers = {
             "apikey": api_token,
@@ -181,6 +198,8 @@ def extract_number_from_lid(participant_id: str) -> Optional[str]:
 def get_group_participants_detailed(instance: str, group_id: str):
     """Get detailed participant info for a specific group"""
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # First get basic group info
         url = f"{base_url}/group/fetchAllGroups/{instance}?getParticipants=true"
         headers = {"apikey": api_token}

@@ -7,13 +7,26 @@ from frappe.utils.file_manager import save_file
 from datetime import datetime
 
 
-base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
-api_token = frappe.db.get_single_value("Evolution API Settings", "api_token")
+def get_base_url():
+    """Get Evolution API base URL from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "base_url")
+    except Exception:
+        return None
+
+
+def get_api_token():
+    """Get Evolution API token from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "api_token")
+    except Exception:
+        return None
 
 
 @frappe.whitelist(allow_guest=True)
 def send_text_message(instance, phone, message):
-
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendText/{instance}"
 
     payload = {
@@ -37,6 +50,7 @@ def send_media_message(instance):
     media = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
     file_name = "test.jpg"
 
+    base_url = get_base_url()
     url = f"{base_url}/message/sendMedia/khankhan"
 
     payload = {
@@ -60,6 +74,8 @@ def send_audio_message(instance):
     phone = "2206084445"
     audio = "https://backend.jokoor.com/files/114.mp3"
 
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendWhatsAppAudio/{instance}"
 
     payload = {
@@ -77,6 +93,8 @@ def send_audio_message(instance):
 @frappe.whitelist(allow_guest=True)
 def send_contact_message(instance):
     phone = "2206084445"
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendContact/{instance}"
 
     payload = {
@@ -102,6 +120,8 @@ def send_contact_message(instance):
 @frappe.whitelist(allow_guest=True)
 def send_poll_message(instance):
     phone = "2206084445"
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendPoll/{instance}"
 
     payload = {
@@ -121,6 +141,8 @@ def send_poll_message(instance):
 @frappe.whitelist(allow_guest=True)
 def send_list_message(instance):
     phone = "2206084445"
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendList/{instance}"
 
     payload = {
@@ -165,6 +187,8 @@ def send_list_message(instance):
 @frappe.whitelist(allow_guest=True)
 def send_button_message(instance):
     phone = "2206084445"
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/message/sendButtons/{instance}"
 
     payload = {
@@ -192,6 +216,8 @@ def send_button_message(instance):
 @frappe.whitelist(allow_guest=True)
 def create_instance(instance, phone_number, token):
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         phone = phone_number.replace("+", "")
 
         url = f"{base_url}/instance/create"
@@ -242,6 +268,8 @@ def get_instance(instance_name: str, phone_number: str = None):
         dict: Instance connection details including pairingCode, code, and count
     """
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # First check if the instance exists and its connection state
         conn_status = connection_status(instance_name)
 
@@ -335,6 +363,8 @@ def save_base64_image_as_file(
 def refresh_qr_code(instance):
 
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # First, try to disconnect/reset the instance (if API supports it)
         disconnect_url = f"{base_url}/instance/logout/{instance}"
         headers = {"apikey": api_token}
@@ -364,8 +394,10 @@ def check_instance_status():
     """Check the current status of the WhatsApp instance"""
 
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         url = f"{base_url}/instance/fetchInstances"
-        headers = {"apikey": "9b9a166c-221a-41d4-8198-7fff51887d85"}
+        headers = {"apikey": api_token}
 
         response = requests.get(url, headers=headers)
         response.raise_for_status()
@@ -391,6 +423,8 @@ def connection_status(instance_name):
         dict: Connection status information
     """
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         url = f"{base_url}/instance/connectionState/{instance_name}"
         headers = {"apikey": api_token}
 
@@ -459,6 +493,8 @@ def diagnose_instance_connection(instance_name, phone_number=None):
 
         # Check 2: Instance Fetch
         try:
+            base_url = get_base_url()
+            api_token = get_api_token()
             fetch_url = f"{base_url}/instance/fetchInstances/{instance_name}"
             headers = {"apikey": api_token}
             response = requests.get(fetch_url, headers=headers)
@@ -597,6 +633,8 @@ def force_refresh_instance_connection(instance_name, phone_number=None):
         dict: Updated connection information
     """
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # First try to logout/disconnect the instance
         logout_url = f"{base_url}/instance/logout/{instance_name}"
         headers = {"apikey": api_token}
@@ -674,7 +712,8 @@ def wait_for_instance_connection(instance_name, max_wait_time=300, check_interva
 
 @frappe.whitelist(allow_guest=True)
 def get_groups(instance):
-
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/group/fetchAllGroups/{instance}?getParticipants=false"
 
     headers = {
@@ -693,7 +732,8 @@ def get_instance_token(instance):
 
 @frappe.whitelist(allow_guest=True)
 def get_contact_list(instance):
-
+    base_url = get_base_url()
+    api_token = get_api_token()
     url = f"{base_url}/chat/findContacts/{instance}"
     payload = {"where": {"id": "cmdmoh9av0wlemn4kdk98lr9y"}}
 
@@ -723,3 +763,4 @@ def get_contact_list(instance):
 #     headers = {
 #         "apikey": api_token,
 #     }
+ 

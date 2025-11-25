@@ -9,10 +9,22 @@ from datetime import datetime
 import base64
 from frappe.utils.file_manager import save_file
 from notifier.api import create_instance
-#
 
-base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
-api_token = frappe.db.get_single_value("Evolution API Settings", "api_token")
+
+def get_base_url():
+    """Get Evolution API base URL from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "base_url")
+    except Exception:
+        return None
+
+
+def get_api_token():
+    """Get Evolution API token from settings"""
+    try:
+        return frappe.db.get_single_value("Evolution API Settings", "api_token")
+    except Exception:
+        return None
 
 
 class WhatsAppInstance(Document):
@@ -34,6 +46,8 @@ def get_instance(instance_name=None):
         frappe.throw("Instance name is required")
 
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         url = f"{base_url}/instance/connect/{instance_name}"
         headers = {"apikey": api_token}
 
@@ -150,6 +164,8 @@ def refresh_qr_code(instance_name=None):
         frappe.throw("Instance name is required")
 
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         # First, try to disconnect/reset the instance (if API supports it)
         disconnect_url = f"{base_url}/instance/logout/{instance_name}"
         headers = {"apikey": api_token}
@@ -182,6 +198,8 @@ def check_instance_status(instance_name=None):
         frappe.throw("Instance name is required")
 
     try:
+        base_url = get_base_url()
+        api_token = get_api_token()
         url = f"{base_url}/instance/fetchInstances/{instance_name}"
         headers = {"apikey": api_token}
 
