@@ -139,23 +139,16 @@ app_license = "mit"
 
 # doc_events = {
 	
-#     "WhatsApp Message": {
-# 		"after_insert": "notifier.webhook.send_message"
-		
-# 	}
-
     
 
 
 # }
 
-# # Scheduled Tasks
-# # ---------------
+# Scheduled Tasks
+# ---------------
 
 # scheduler_events = {
-# 	"all": [
-# 		"notifier.config.check_instance_status"
-# 	],
+	
 # 	"daily": [
 # 		"notifier.tasks.daily"
 # 	],
