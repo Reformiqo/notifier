@@ -88,7 +88,7 @@ def update_instance():
         return {"status": "error", "message": str(e)}
 
 @frappe.whitelist(allow_guest=True)
-def send_message():
+def send_message(doc, method=None):
     pass
 
 @frappe.whitelist(allow_guest=True)
