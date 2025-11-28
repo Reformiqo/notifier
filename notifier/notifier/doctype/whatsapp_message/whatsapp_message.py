@@ -12,6 +12,7 @@ class WhatsAppMessage(Document):
     def validate(self):
         if self.to.startswith("+"):
             self.to = self.to[1:]
+        self.send_message()
     
         
     
