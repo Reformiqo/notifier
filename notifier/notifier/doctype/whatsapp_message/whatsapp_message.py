@@ -14,7 +14,12 @@ class WhatsAppMessage(Document):
             self.to = self.to[1:]
         self.send_message()
     
-        
+
+    def send_message(self):
+        if self.content_type == "text":
+            self.send_text_message()
+        elif self.content_type == "media":
+            self.send_media_message()
     
     def send_text_message(self):
 
