@@ -169,7 +169,7 @@ app_license = "mit"
 # 		"notifier.tasks.monthly"
 # 	],
     
-}
+# }
 
 # Testing
 # -------
