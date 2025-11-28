@@ -36,18 +36,16 @@ def update_instance():
             frappe.log_error("State missing in webhook data", "WhatsApp Webhook Error")
             return {"status": "error", "message": "State missing"}
 
-        # Find the WhatsApp Instance by instance_id field
+        # Find the WhatsApp Instance by document name (instance_id is the document name)
         frappe.set_user("Administrator")
-        instance_doc = frappe.db.get_value(
-            "WhatsApp Instance", {"instance_id": instance_id}, "name"
-        )
-
-        if not instance_doc:
+        if not frappe.db.exists("WhatsApp Instance", instance_id):
             frappe.log_error(
                 f"WhatsApp Instance not found for instance_id: {instance_id}",
                 "WhatsApp Webhook Error",
             )
             return {"status": "error", "message": f"Instance not found: {instance_id}"}
+
+        instance_doc = instance_id
 
         # Map Evolution API state to Frappe status
         # Evolution API states: "open", "close", "connecting"
