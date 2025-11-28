@@ -86,3 +86,11 @@ def update_instance():
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "WhatsApp Webhook Error")
         return {"status": "error", "message": str(e)}
+
+@frappe.whitelist(allow_guest=True)
+def send_message():
+    pass
+
+@frappe.whitelist(allow_guest=True)
+def receive_message():
+    pass
