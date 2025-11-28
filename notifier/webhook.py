@@ -1,34 +1,90 @@
 import frappe
-import requests
+import json
+
 
 @frappe.whitelist(allow_guest=True)
-def create_instance(doc, method=None):
+def update_instance():
     try:
-        url = "https://n8n.hosting.royalsmb.com/webhook/create-instance"
-        headers = {
-            "Content-Type": "application/json"
+        # Get webhook data - can be from form_dict (POST form) or request.json (JSON payload)
+        if frappe.request and frappe.request.is_json:
+            data = frappe.request.json
+        elif hasattr(frappe.local, "form_dict") and frappe.local.form_dict:
+            data = frappe.local.form_dict
+        else:
+            data = {}
+
+        # Log the received data for debugging
+        frappe.logger().info("Webhook received: %s", json.dumps(data))
+
+        # Check if this is a connection.update event
+        event = data.get("event")
+        if event != "connection.update":
+            return {"status": "ignored", "message": f"Event {event} not handled"}
+
+        # Extract instance identifier and state
+        instance_id = data.get("instance")
+        state_data = data.get("data", {})
+        state = state_data.get("state")
+
+        if not instance_id:
+            frappe.log_error(
+                "Instance ID missing in webhook data", "WhatsApp Webhook Error"
+            )
+            return {"status": "error", "message": "Instance ID missing"}
+
+        if not state:
+            frappe.log_error("State missing in webhook data", "WhatsApp Webhook Error")
+            return {"status": "error", "message": "State missing"}
+
+        # Find the WhatsApp Instance by instance_id field
+        frappe.set_user("Administrator")
+        instance_doc = frappe.db.get_value(
+            "WhatsApp Instance", {"instance_id": instance_id}, "name"
+        )
+
+        if not instance_doc:
+            frappe.log_error(
+                f"WhatsApp Instance not found for instance_id: {instance_id}",
+                "WhatsApp Webhook Error",
+            )
+            return {"status": "error", "message": f"Instance not found: {instance_id}"}
+
+        # Map Evolution API state to Frappe status
+        # Evolution API states: "open", "close", "connecting"
+        # Frappe statuses: "Open", "Closed", "Connecting"
+        status_mapping = {
+            "open": "Open",
+            "close": "Closed",
+            "closed": "Closed",
+            "connecting": "Connecting",
         }
-        data = {
-            "doc": doc.as_dict(),
-            "doctype": doc.doctype
+
+        frappe_status = status_mapping.get(state.lower())
+        if not frappe_status:
+            frappe.log_error(
+                f"Unknown state received: {state}", "WhatsApp Webhook Error"
+            )
+            return {"status": "error", "message": f"Unknown state: {state}"}
+
+        # Update the instance status
+        frappe.db.set_value(
+            "WhatsApp Instance",
+            instance_doc,
+            "status",
+            frappe_status,
+            update_modified=False,
+        )
+        frappe.db.commit()
+
+        frappe.logger().info(
+            "Updated WhatsApp Instance %s status to %s", instance_doc, frappe_status
+        )
+
+        return {
+            "status": "success",
+            "message": f"Instance {instance_doc} status updated to {frappe_status}",
         }
-        requests.post(url, headers=headers, json=data)
-        return "OK"
-    except Exception as e:  
+
+    except Exception as e:
         frappe.log_error(frappe.get_traceback(), "WhatsApp Webhook Error")
-        return "Error"
-
-@frappe.whitelist(allow_guest=True)
-def send_message(doc, method=None):
-    url = "https://n8n.hosting.royalsmb.com/webhook/92d06cbb-647b-4264-ab07-ee9d9e9cc674"
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = {
-        "doc": doc.as_dict(),
-        "doctype": doc.doctype
-    }
-    requests.post(url, headers=headers, json=data)
-    return "OK"
-
- 
+        return {"status": "error", "message": str(e)}
