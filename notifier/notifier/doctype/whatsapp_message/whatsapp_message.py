@@ -3,7 +3,6 @@
 
 import frappe
 import requests
-import json
 from frappe.model.document import Document
 
 base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
@@ -49,8 +48,21 @@ class WhatsAppMessage(Document):
 
     def send_media_message(self):
         try:
+            if not self.attach:
+                frappe.throw("Please attach a file to send media message")
+
             extension = self.attach.split(".")[-1]
             mimetype = self.content_type + "/" + extension
+
+            # Get full URL for the attached file
+            if self.attach.startswith("http://") or self.attach.startswith("https://"):
+                media_url = self.attach
+            else:
+                # Ensure the path starts with /
+                file_path = (
+                    self.attach if self.attach.startswith("/") else f"/{self.attach}"
+                )
+                media_url = f"{frappe.utils.get_url()}{file_path}"
 
             url = f"{base_url}/message/sendMedia/{self.instance}"
 
@@ -59,7 +71,7 @@ class WhatsAppMessage(Document):
                 "mediatype": self.content_type,
                 "mimetype": mimetype,
                 "caption": self.message,
-                "media": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+                "media": media_url,
                 "fileName": self.label,
                 "linkPreview": True,
             }
@@ -76,3 +88,4 @@ class WhatsAppMessage(Document):
             return response_data
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), "WhatsApp Message Error")
+            frappe.throw(f"Failed to send WhatsApp media message: {str(e)}")
