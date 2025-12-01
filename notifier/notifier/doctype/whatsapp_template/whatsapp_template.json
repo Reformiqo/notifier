@@ -19,6 +19,7 @@
   },
   {
    "allow_in_quick_entry": 1,
+   "description": "Use {{fieldname}} to insert Contact field values dynamically. Available fields: first_name, last_name, full_name, email_id, mobile_no, phone, company_name, designation, department, custom_primary_contact. Example: Hello {{first_name}}, your order is ready!",
    "fieldname": "message",
    "fieldtype": "HTML Editor",
    "label": "Message",
