@@ -25,13 +25,13 @@ def send_broadcast(broadcast_id):
 		
 		if not broadcast.template:
 			frappe.throw("Please select a template for the broadcast")
-		contacts = frappe.db.get_list("Contact")
+		contacts = frappe.db.get_list("Contact", ["name"])
 		contacts_data = []
 		for contact in contacts:
 			contact_doc = frappe.get_doc("Contact", contact.name)
-			# Check if custom_group exists and is not None
-			if hasattr(contact_doc, 'custom_group') and contact_doc.custom_group:
-				for group in contact_doc.custom_group:
+			# Check if groups exists and is not None
+			if hasattr(contact_doc, 'groups') and contact_doc.groups:
+				for group in contact_doc.groups:
 					if group.group == broadcast.group:
 						message = frappe.new_doc("WhatsApp Message")
 						message.label = broadcast.broadcast_name
