@@ -65,7 +65,6 @@ def send_media_message(docname):
         "caption": caption,
         "media": media,
         "fileName": file_name,
-        "linkPreview": True,
     }
     headers = {"apikey": api_token, "Content-Type": "application/json"}
 
