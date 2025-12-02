@@ -18,10 +18,7 @@ class WhatsAppMessage(Document):
     def send_message(self):
         if self.content_type == "text":
             self.send_text_message()
-        else:
-            # For image, video, audio, document, etc.
-            self.send_media_message()
-
+       
     def send_text_message(self):
 
         try:
