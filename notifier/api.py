@@ -48,7 +48,7 @@ def send_text_message(instance, phone, message):
 @frappe.whitelist(allow_guest=True)
 def send_media_message(docname):
     doc = frappe.get_doc("WhatsApp Message", docname)
-    phone = "919033230370"
+    phone = doc.to
     media_type = doc.content_type
     mimetype = f"image/{doc.attach.split('.')[-1]}"
     caption = doc.message
