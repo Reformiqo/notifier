@@ -14,9 +14,8 @@ class WhatsAppMessage(Document):
     def validate(self):
         if self.to.startswith("+"):
             self.to = self.to[1:]
-        self.send_message()
 
-    def send_message(self):
+    def after_insert(self):
         if self.content_type == "text":
             self.send_text_message()
 
