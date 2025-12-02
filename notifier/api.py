@@ -54,7 +54,7 @@ def send_media_message(docname):
     caption = doc.message
 
     media = frappe.utils.get_url(doc.attach).replace(" ", "%20")
-    file_name = doc.label
+    file_name = doc.attach.split("/")[-1]
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
 
