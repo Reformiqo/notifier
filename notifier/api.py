@@ -51,7 +51,9 @@ def send_media_message(docname):
     media_type = doc.content_type
     mimetype = "image/png"
     caption = doc.message
-    media = "https://v16.erpera.io/files/Screenshot%20from%202025-12-02%2019-22-14.png"
+    # replace space with %20
+    attach = doc.attach.replace(" ", "%20") if " " in doc.attach else doc.attach
+    media = f"https://v16.erpera.io/files/{attach}" if " " in doc.attach else doc.attach
     file_name = doc.label
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
