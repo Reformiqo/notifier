@@ -55,14 +55,7 @@ class WhatsAppMessage(Document):
             mimetype = self.content_type + "/" + extension
 
             # Get full URL for the attached file
-            if self.attach.startswith("http://") or self.attach.startswith("https://"):
-                media_url = self.attach
-            else:
-                # Ensure the path starts with /
-                file_path = (
-                    self.attach if self.attach.startswith("/") else f"/{self.attach}"
-                )
-                media_url = f"{frappe.utils.get_url()}{file_path}"
+            media_url = frappe.utils.get_url(self.attach)
 
             url = f"{base_url}/message/sendMedia/{self.instance}"
 

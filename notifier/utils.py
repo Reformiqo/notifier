@@ -155,3 +155,8 @@ def create_instance(instance, phone_number, token):
     response = requests.post(url, json=payload, headers=headers)
 
     return response.json()
+
+@frappe.whitelist(allow_guest=True)
+def get_url():
+    doc = frappe.get_doc("WhatsApp Message", "jhsh8aj173")
+    return frappe.utils.get_url(doc.attach)
