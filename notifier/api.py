@@ -7,6 +7,9 @@ from frappe.utils.file_manager import save_file
 from datetime import datetime
 
 
+base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
+api_token = frappe.db.get_single_value("Evolution API Settings", "api_token")
+
 def get_base_url():
     """Get Evolution API base URL from settings"""
     try:
@@ -42,16 +45,16 @@ def send_text_message(instance, phone, message):
 
 
 @frappe.whitelist(allow_guest=True)
-def send_media_message(instance):
-    phone = "2206084445"
-    media_type = "video"
-    mimetype = "video/mp4"
-    caption = "Test"
-    media = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
-    file_name = "test.jpg"
+def send_media_message(docname):
+    doc = frappe.get_doc("WhatsApp Message", docname)
+    phone = doc.to
+    media_type = doc.content_type
+    mimetype = "image/jpg"
+    caption = doc.message
+    media = frappe.utils.get_url(doc.attach)
+    file_name = doc.label
 
-    base_url = get_base_url()
-    url = f"{base_url}/message/sendMedia/khankhan"
+    url = f"{base_url}/message/sendMedia/{doc.instance}"
 
     payload = {
         "number": phone,
@@ -62,7 +65,7 @@ def send_media_message(instance):
         "fileName": file_name,
         "linkPreview": True,
     }
-    headers = {"apikey": "Hey@you$know14", "Content-Type": "application/json"}
+    headers = {"apikey": api_token, "Content-Type": "application/json"}
 
     response = requests.post(url, json=payload, headers=headers)
 
