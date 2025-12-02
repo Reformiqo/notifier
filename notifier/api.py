@@ -10,6 +10,7 @@ from datetime import datetime
 base_url = frappe.db.get_single_value("Evolution API Settings", "base_url")
 api_token = frappe.db.get_single_value("Evolution API Settings", "api_token")
 
+
 def get_base_url():
     """Get Evolution API base URL from settings"""
     try:
@@ -47,13 +48,12 @@ def send_text_message(instance, phone, message):
 @frappe.whitelist(allow_guest=True)
 def send_media_message(docname):
     doc = frappe.get_doc("WhatsApp Message", docname)
-    phone = doc.to
+    phone = "919033230370"
     media_type = doc.content_type
-    mimetype = "image/png"
+    mimetype = f"image/{doc.attach.split('.')[-1]}"
     caption = doc.message
-    # replace space with %20
-    attach = doc.attach.replace(" ", "%20") if " " in doc.attach else doc.attach
-    media = f"https://v16.erpera.io/files/{attach}" if " " in doc.attach else doc.attach
+
+    media = frappe.utils.get_url(doc.attach).replace(" ", "%20")
     file_name = doc.label
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
@@ -319,6 +319,75 @@ def get_instance(instance_name: str, phone_number: str = None):
         error_msg = f"Unexpected Error: {str(e)}"
         frappe.log_error(frappe.get_traceback(), "Evolution API Error")
         frappe.throw(f"An error occurred: {error_msg}")
+
+
+@frappe.whitelist(allow_guest=True)
+def get_attachment_as_base64(docname, doctype="WhatsApp Message"):
+    """
+    Get the attachment from a document and convert it to base64 string
+
+    Args:
+        docname (str): Name of the document
+        doctype (str): Type of the document (default: "WhatsApp Message")
+
+    Returns:
+        str: Base64 encoded string of the file content, or None if no attachment
+    """
+    try:
+        # Get the document
+        doc = frappe.get_doc(doctype, docname)
+
+        # Check if attach field exists and has a value
+        if not hasattr(doc, "attach") or not doc.attach:
+            frappe.throw("No attachment found in the document")
+
+        # Get the file path from attach field
+        file_path = doc.attach
+
+        # Find the File document
+        # First try to get it by attached_to (most reliable)
+        file_doc = None
+        file_docs = frappe.get_all(
+            "File",
+            filters={"attached_to_doctype": doctype, "attached_to_name": docname},
+            fields=["name"],
+            order_by="creation desc",
+            limit=1,
+        )
+        if file_docs:
+            file_doc = frappe.get_doc("File", file_docs[0].name)
+
+        # If file_doc not found, try to get it by file_url
+        if not file_doc:
+            # Ensure file_path has leading slash for file_url search
+            search_path = file_path if file_path.startswith("/") else f"/{file_path}"
+            file_docs = frappe.get_all(
+                "File", filters={"file_url": search_path}, fields=["name"], limit=1
+            )
+            if file_docs:
+                file_doc = frappe.get_doc("File", file_docs[0].name)
+
+        if not file_doc:
+            frappe.throw(f"File not found for attachment: {doc.attach}")
+
+        # Get file content as bytes
+        file_content = file_doc.get_content()
+
+        # If content is string, encode it to bytes
+        if isinstance(file_content, str):
+            file_content = file_content.encode("utf-8")
+
+        # Convert to base64
+        base64_string = base64.b64encode(file_content).decode("utf-8")
+
+        return base64_string
+
+    except Exception as e:
+        frappe.log_error(
+            f"Error converting attachment to base64: {str(e)}",
+            "Attachment to Base64 Error",
+        )
+        frappe.throw(f"Failed to convert attachment to base64: {str(e)}")
 
 
 def save_base64_image_as_file(
@@ -768,4 +837,3 @@ def get_contact_list(instance):
 #     headers = {
 #         "apikey": api_token,
 #     }
- 

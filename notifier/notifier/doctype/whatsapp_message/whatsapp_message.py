@@ -78,7 +78,6 @@ class WhatsAppMessage(Document):
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()  # Raise an exception for bad status codes
 
-
             response_data = response.json()
             frappe.log_error(response_data, "WhatsApp Message Error")
             key_data = response_data.get("key")
