@@ -43,11 +43,7 @@ def send_text_message(instance, phone, message):
     response = requests.post(url, json=payload, headers=headers)
 
     return response.json()
-def clean_url(url):
-    # Remove extra whitespace
-    return url.replace("\t", " ")
-    
-   
+
 
 @frappe.whitelist(allow_guest=True)
 def send_media_message(docname):
@@ -57,7 +53,7 @@ def send_media_message(docname):
     mimetype = f"image/{doc.attach.split('.')[-1]}"
     caption = doc.message
 
-    url = clean_url(frappe.utils.get_url(doc.attach))
+    media = frappe.utils.get_url(doc.attach).replace(" ", "%20")
     file_name = doc.label
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
@@ -67,7 +63,7 @@ def send_media_message(docname):
         "mediatype": media_type,
         "mimetype": mimetype,
         "caption": caption,
-        "media": url,
+        "media": media,
         "fileName": file_name,
         "linkPreview": True,
     }
