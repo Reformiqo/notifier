@@ -51,7 +51,7 @@ def send_media_message(docname):
     media_type = doc.content_type
     mimetype = "image/png"
     caption = doc.message
-    media = "https://v16.erpera.com/files/Screenshot from 2025-12-02 19-22-14.png"
+    media = "https://v16.erpera.io/files/Screenshot%20from%202025-12-02%2019-22-14.png"
     file_name = doc.label
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
