@@ -18,7 +18,8 @@ class WhatsAppMessage(Document):
     def send_message(self):
         if self.content_type == "text":
             self.send_text_message()
-        elif self.content_type == "media":
+        else:
+            # For image, video, audio, document, etc.
             self.send_media_message()
 
     def send_text_message(self):
@@ -51,11 +52,15 @@ class WhatsAppMessage(Document):
             if not self.attach:
                 frappe.throw("Please attach a file to send media message")
 
-            extension = self.attach.split(".")[-1]
+            extension = self.attach.split(".")[-1].lower()
             mimetype = self.content_type + "/" + extension
 
             # Get full URL for the attached file
-            media_url = frappe.utils.get_url(self.attach)
+            # Ensure path starts with / if it doesn't already
+            file_path = (
+                self.attach if self.attach.startswith("/") else f"/{self.attach}"
+            )
+            media_url = frappe.utils.get_url(file_path)
 
             url = f"{base_url}/message/sendMedia/{self.instance}"
 
@@ -73,7 +78,9 @@ class WhatsAppMessage(Document):
             response = requests.post(url, json=payload, headers=headers)
             response.raise_for_status()  # Raise an exception for bad status codes
 
+
             response_data = response.json()
+            frappe.log_error(response_data, "WhatsApp Message Error")
             key_data = response_data.get("key")
             if key_data:
                 self.message_id = key_data.get("id")
