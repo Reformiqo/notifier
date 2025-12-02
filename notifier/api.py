@@ -49,9 +49,9 @@ def send_media_message(docname):
     doc = frappe.get_doc("WhatsApp Message", docname)
     phone = doc.to
     media_type = doc.content_type
-    mimetype = "image/jpg"
+    mimetype = "image/png"
     caption = doc.message
-    media = frappe.utils.get_url(doc.attach)
+    media = "https://v16.erpera.com/files/Screenshot from 2025-12-02 19-22-14.png"
     file_name = doc.label
 
     url = f"{base_url}/message/sendMedia/{doc.instance}"
