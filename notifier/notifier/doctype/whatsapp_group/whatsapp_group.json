@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "hash",
- "creation": "2026-07-06 21:00:00.000000",
+ "creation": "2026-07-06 21:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -43,10 +43,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-06 21:00:00.000000",
+ "modified": "2026-07-07 15:05:57.629796",
  "modified_by": "Administrator",
  "module": "Notifier",
  "name": "WhatsApp Group",
+ "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [
   {
@@ -63,8 +64,10 @@
   }
  ],
  "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "group_name"
+ "title_field": "group_name",
+ "translated_doctype": 1
 }
