@@ -129,6 +129,11 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
+override_doctype_class = {
+	# Adds a "WhatsApp" channel to the standard Notification doctype.
+	"Notification": "notifier.overrides.notification.WhatsAppNotification",
+}
+
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
 # }
@@ -146,6 +151,14 @@ app_license = "mit"
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+	"cron": {
+		# Keep WhatsApp Instance status in sync with WuzAPI. Webhooks may be
+		# unreachable (e.g. site behind localhost), so we also poll every 2 min.
+		"*/2 * * * *": ["notifier.api.check_instance_status"],
+	}
+}
 
 # scheduler_events = {
 	

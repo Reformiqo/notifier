@@ -1,416 +1,167 @@
 # Copyright (c) 2025, royalsmb and contributors
 # For license information, please see license.txt
 
+import uuid
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
-import uuid
-import requests
-from datetime import datetime
-import base64
-from frappe.utils.file_manager import save_file
-from notifier.api import create_instance
 
-
-def get_base_url():
-    """Get Evolution API base URL from settings"""
-    try:
-        return frappe.db.get_single_value("Evolution API Settings", "base_url")
-    except Exception:
-        return None
-
-
-def get_api_token():
-    """Get Evolution API token from settings"""
-    try:
-        return frappe.db.get_single_value("Evolution API Settings", "api_token")
-    except Exception:
-        return None
+from notifier import wuzapi
+from notifier.api import (
+    create_instance,
+    reconcile_instance_status,
+    save_base64_image_as_file,
+)
 
 
 class WhatsAppInstance(Document):
     def validate(self):
-
-        token = str(uuid.uuid4())
-        self.token = token
+        if not self.token:
+            self.token = str(uuid.uuid4())
 
     def after_insert(self):
-        # Note: phone_number field might need to be added to the doctype if not present
         phone_number = getattr(self, "phone_number", None) or self.name
         create_instance(self.name, phone_number, self.token)
 
 
-@frappe.whitelist(allow_guest=True)
-def get_instance(instance_name=None):
-
-    if not instance_name:
-        frappe.throw("Instance name is required")
-
-    try:
-        base_url = get_base_url()
-        api_token = get_api_token()
-        url = f"{base_url}/instance/connect/{instance_name}"
-        headers = {"apikey": api_token}
-
-        # Make the API request
-        response = requests.get(url, headers=headers, timeout=30)
-
-        # Log the response for debugging
-        frappe.logger().info(f"API Response Status: {response.status_code}")
-        frappe.logger().info(f"API Response Headers: {response.headers}")
-
-        response.raise_for_status()  # Raise an exception for bad status codes
-
-        response_data = response.json()
-        frappe.logger().info(f"API Response Data: {response_data}")
-
-        base64_image = response_data.get("base64")
-
-        if not base64_image:
-            # Log the full response for debugging
-            frappe.logger().error(
-                f"No base64 image in response. Full response: {response_data}"
-            )
-            frappe.throw(
-                f"No base64 image received from API. Response: {response_data}"
-            )
-
-        # Generate unique filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"qrcode_{timestamp}.png"
-
-        # Save the image
-        doctype = "WhatsApp Instance"
-        docname = instance_name
-        file_doc = save_base64_image_to_file(base64_image, filename, doctype, docname)
-
-        return {
-            "base64": base64_image,
-            "file_url": file_doc.file_url if file_doc else None,
-            "filename": filename,
-            "full_response": response_data,
-        }
-
-    except requests.exceptions.RequestException as e:
-        frappe.log_error(
-            f"API Request Error for instance {instance_name}: {str(e)}",
-            "Evolution API Error",
-        )
-        frappe.throw(
-            f"Failed to connect to Evolution API for instance {instance_name}: {str(e)}"
-        )
-    except Exception as e:
-        frappe.log_error(
-            f"Unexpected Error for instance {instance_name}: {str(e)}",
-            "QR Code Generation Error",
-        )
-        frappe.throw(f"An error occurred for instance {instance_name}: {str(e)}")
-
-
-def save_base64_image_to_file(
-    base64_string,
-    filename,
-    doctype=None,
-    docname=None,
-    folder=None,
-    is_private=0,
-    instance_name=None,
-):
-    try:
-        # Clean the base64 string
-        if base64_string.startswith("data:"):
-            # Extract just the base64 part after the comma
-            base64_string = base64_string.split(",")[1]
-
-        # Remove any whitespace/newlines
-        base64_string = base64_string.strip().replace("\n", "").replace("\r", "")
-
-        # Decode base64 string to bytes
-        file_content = base64.b64decode(base64_string)
-
-        # Validate that we have actual image data
-        if len(file_content) == 0:
-            raise ValueError("Decoded file content is empty")
-
-        # Save file using Frappe's file manager
-        file_doc = save_file(
-            fname=filename,
-            content=file_content,
-            dt=doctype,
-            dn=docname,
-            folder=folder,
-            is_private=is_private,
-        )
-        frappe.db.set_value(doctype, docname, "qr_code", file_doc.file_url)
-
-        frappe.db.commit()
-        return file_doc
-
-    except base64.binascii.Error as e:
-        frappe.log_error(f"Base64 decode error: {str(e)}", "Base64 Decode Error")
-        frappe.throw(f"Invalid base64 data: {str(e)}")
-    except Exception as e:
-        frappe.log_error(
-            f"Error saving base64 image: {str(e)}", "Base64 Image Save Error"
-        )
-        frappe.throw(f"Failed to save image: {str(e)}")
-
-
-# Alternative method to force refresh the QR code
-@frappe.whitelist(allow_guest=True)
-def refresh_qr_code(instance_name=None):
-    """Force refresh QR code by clearing any cache"""
-
-    if not instance_name:
-        frappe.throw("Instance name is required")
-
-    try:
-        base_url = get_base_url()
-        api_token = get_api_token()
-        # First, try to disconnect/reset the instance (if API supports it)
-        disconnect_url = f"{base_url}/instance/logout/{instance_name}"
-        headers = {"apikey": api_token}
-
-        # Attempt to logout/disconnect first
-        try:
-            requests.delete(disconnect_url, headers=headers, timeout=10)
-        except:
-            pass  # Ignore if disconnect fails
-
-        # Wait a moment
-        import time
-
-        time.sleep(2)
-
-        # Now get fresh QR code
-        return get_instance(instance_name)
-
-    except Exception as e:
-        frappe.log_error(f"Error refreshing QR code: {str(e)}", "QR Code Refresh Error")
-        return get_instance(instance_name)  # Fallback to normal method
-
-
-# Method to check instance status
-@frappe.whitelist(allow_guest=True)
-def check_instance_status(instance_name=None):
-    """Check the current status of the WhatsApp instance"""
-
-    if not instance_name:
-        frappe.throw("Instance name is required")
-
-    try:
-        base_url = get_base_url()
-        api_token = get_api_token()
-        url = f"{base_url}/instance/fetchInstances/{instance_name}"
-        headers = {"apikey": api_token}
-
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-
-        return response.json()
-
-    except Exception as e:
-        frappe.log_error(
-            f"Error checking instance status: {str(e)}", "Instance Status Error"
-        )
-        frappe.throw(f"Failed to check instance status: {str(e)}")
-
-
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def connect_instance(instance):
+    """Open the WuzAPI session for ``instance`` and store its QR code.
+
+    Invoked by the "Refresh QR Code" button in whatsapp_instance.js.
+    Returns ``{"success", "file_url", "message"}`` for back-compat with the JS.
+    """
+    token = wuzapi.instance_token(instance)
+    if not token:
+        frappe.throw(f"No WuzAPI token stored for instance {instance}")
+
+    # Ensure the session is up. Re-connecting an active session may error; ignore.
     try:
-        settings = frappe.get_doc("Evolution API Settings")
-        api_base_url = settings.base_url
-        api_key = settings.api_token
-        headers = {"apikey": api_key}
+        wuzapi.session_connect(token, immediate=True)
+    except Exception:
+        frappe.logger().info("session/connect no-op for %s", instance)
 
-        # Try different possible endpoints for QR code generation
-        endpoints_to_try = [
-            f"/instance/connect/{instance}",
-            f"/instance/qrcode/{instance}",
-            f"/instance/{instance}/qrcode",
-            f"/instance/{instance}/connect",
-        ]
+    qr = wuzapi.session_qr(token)
+    qr_data = qr.get("data") or {}
+    qr_code = qr_data.get("QRCode") or qr_data.get("qrcode")
 
-        response = None
-        successful_url = None
-
-        for endpoint in endpoints_to_try:
-            url = f"{api_base_url}{endpoint}"
-            frappe.logger().info(f"Trying endpoint: {url}")
-
-            try:
-                response = requests.get(url, headers=headers, timeout=30)
-                frappe.logger().info(
-                    f"Response status for {endpoint}: {response.status_code}"
-                )
-
-                if response.status_code == 200:
-                    successful_url = url
-                    break
-                elif response.status_code == 404:
-                    frappe.logger().info(
-                        f"Endpoint {endpoint} not found, trying next..."
-                    )
-                    continue
-                else:
-                    frappe.logger().info(
-                        f"Endpoint {endpoint} returned {response.status_code}"
-                    )
-
-            except requests.exceptions.RequestException as e:
-                frappe.logger().info(f"Failed to connect to {endpoint}: {str(e)}")
-                continue
-
-        if not response or response.status_code != 200:
-            if response:
-                frappe.logger().info(f"Final response status: {response.status_code}")
-                frappe.logger().info(f"Final response content: {response.text[:500]}")
-
-                # If we get 404, try to create the instance first
-                if response.status_code == 404:
-                    frappe.logger().info(
-                        "Instance not found, attempting to create it first..."
-                    )
-                    try:
-                        create_url = f"{api_base_url}/instance/create"
-                        create_data = {
-                            "instanceName": instance,
-                            "qrcode": True,
-                            "integration": "WHATSAPP-BAILEYS",
-                        }
-                        create_response = requests.post(
-                            create_url, headers=headers, json=create_data, timeout=30
-                        )
-                        frappe.logger().info(
-                            f"Create instance response: {create_response.status_code}"
-                        )
-
-                        if create_response.status_code in [200, 201]:
-                            # Now try to get QR code again
-                            import time
-
-                            time.sleep(2)  # Wait a moment for instance to initialize
-
-                            for endpoint in endpoints_to_try:
-                                url = f"{api_base_url}{endpoint}"
-                                response = requests.get(
-                                    url, headers=headers, timeout=30
-                                )
-                                if response.status_code == 200:
-                                    successful_url = url
-                                    break
-                    except Exception as create_error:
-                        frappe.logger().info(
-                            f"Failed to create instance: {str(create_error)}"
-                        )
-
-                if not response or response.status_code != 200:
-                    frappe.throw(
-                        f"Could not get QR code from Evolution API. Last status: {response.status_code if response else 'No response'}"
-                    )
-            else:
-                frappe.throw(
-                    "Could not connect to any Evolution API endpoint for QR code generation"
-                )
-
-        frappe.logger().info(f"Successfully connected using: {successful_url}")
-        frappe.logger().info(
-            f"Response content: {response.text[:500]}"
-        )  # Log first 500 chars
-
-        response_data = response.json()
-
-        # Log the complete response structure for debugging
-        frappe.logger().info(f"Complete API response: {response_data}")
-
-        # Check different possible response formats
-        base64_data = None
-        if isinstance(response_data, dict):
-            # Try different possible keys for base64 data
-            base64_data = (
-                response_data.get("base64")
-                or response_data.get("qrcode")
-                or response_data.get("qr")
-                or response_data.get("code")
+    if not qr_code:
+        # No QR usually means the instance is already logged in.
+        if wuzapi.frappe_status_from_session(wuzapi.session_status(token)) == "Open":
+            frappe.db.set_value(
+                "WhatsApp Instance", instance, {"status": "Open", "qr_code": None}
             )
+            frappe.db.commit()
+            return {
+                "success": True,
+                "file_url": None,
+                "message": "Instance already connected",
+            }
+        frappe.throw(f"No QR code returned by WuzAPI for {instance}: {qr}")
 
-            # If it's nested in a data object
-            if not base64_data and "data" in response_data:
-                data_obj = response_data.get("data", {})
-                base64_data = (
-                    data_obj.get("base64")
-                    or data_obj.get("qrcode")
-                    or data_obj.get("qr")
-                    or data_obj.get("code")
-                )
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"qrcode_{instance}_{timestamp}.png"
+    file_doc = save_base64_image_as_file(
+        qr_code, filename, doctype="WhatsApp Instance", docname=instance
+    )
+    frappe.db.set_value("WhatsApp Instance", instance, "qr_code", file_doc.file_url)
+    frappe.db.commit()
 
-        frappe.logger().info(f"Extracted base64_data: {bool(base64_data)}")
-
-        if not base64_data:
-            # Provide detailed error with actual response structure
-            response_keys = (
-                list(response_data.keys())
-                if isinstance(response_data, dict)
-                else "Not a dictionary"
-            )
-            frappe.throw(
-                f"No base64 data received from API. Response structure: {response_keys}. Full response: {response_data}"
-            )
-
-        # Use the updated function to save the QR code
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"qrcode_{instance}_{timestamp}.png"
-
-        file_doc = save_base64_image_to_file(
-            base64_data, filename, doctype="WhatsApp Instance", docname=instance
-        )
-
-        return {
-            "success": True,
-            "file_url": file_doc.file_url,
-            "message": "QR code generated successfully",
-        }
-
-    except requests.exceptions.Timeout:
-        frappe.throw(
-            "Connection timeout. The Evolution API server is taking too long to respond."
-        )
-    except requests.exceptions.ConnectionError:
-        frappe.throw(
-            "Cannot connect to Evolution API server. Please check the base URL in Evolution API Settings."
-        )
-    except Exception as e:
-        frappe.log_error(
-            f"Error in connect_instance: {str(e)}", "Connect Instance Error"
-        )
-        frappe.throw(f"Failed to connect instance: {str(e)}")
+    return {
+        "success": True,
+        "file_url": file_doc.file_url,
+        "message": "QR code generated successfully",
+    }
 
 
-# Duplicate function removed - functionality consolidated into save_base64_image_to_file
+@frappe.whitelist()
+def get_instance(instance_name=None):
+    """Back-compat alias: connect and return the QR code."""
+    if not instance_name:
+        frappe.throw("Instance name is required")
+    return connect_instance(instance_name)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
+def refresh_qr_code(instance_name=None):
+    """Log the session out and fetch a fresh QR code."""
+    if not instance_name:
+        frappe.throw("Instance name is required")
+
+    token = wuzapi.instance_token(instance_name)
+    if token:
+        try:
+            wuzapi.session_logout(token)
+        except Exception:
+            pass  # Ignore if there was nothing to log out of.
+
+    return connect_instance(instance_name)
+
+
+@frappe.whitelist()
 def get_instance_status(instance):
-    settings = frappe.get_doc("Evolution API Settings")
-    api_base_url = settings.base_url
-    api_key = settings.api_token
+    """Reconcile and return the live session status for ``instance``."""
+    reconcile_instance_status(instance)
+    token = wuzapi.instance_token(instance)
+    return wuzapi.session_status(token) if token else {"state": "unknown"}
 
-    url = f"{api_base_url}/instance/connectionState/{instance}"
 
-    headers = {"apikey": api_key}
+@frappe.whitelist()
+def check_instance_status(instance_name=None):
+    if not instance_name:
+        frappe.throw("Instance name is required")
+    token = wuzapi.instance_token(instance_name)
+    return wuzapi.session_status(token) if token else {"state": "unknown"}
 
-    response = requests.get(url, headers=headers, timeout=30)
-    # "instance": {
-    #   "instanceName": "Abdoulie Bah (2206084445)",
-    #   "state": "open"
-    # }
-    instance_name = response.json().get("instance").get("instanceName")
-    state = response.json().get("instance").get("state")
 
-    if state == "open":
-        frappe.db.set_value("WhatsApp Instance", instance_name, "status", "Open")
-        # remove the qr code
-        frappe.db.set_value("WhatsApp Instance", instance_name, "qr_code", None)
-        frappe.db.commit()
+@frappe.whitelist()
+def sync_groups(instance):
+    """Fetch this instance's WhatsApp groups from WuzAPI into WhatsApp Group."""
+    token = wuzapi.instance_token(instance)
+    if not token:
+        return {"fetched": 0, "new": 0}
 
-    return response.json()
+    data = wuzapi.get_groups(token)
+    groups = (data.get("data") or {}).get("Groups") or [] if isinstance(data, dict) else []
+
+    new = 0
+    for g in groups:
+        jid = g.get("JID")
+        if not jid:
+            continue
+        values = {
+            "group_name": g.get("Name") or jid,
+            "participant_count": len(g.get("Participants") or []),
+        }
+        existing = frappe.db.get_value(
+            "WhatsApp Group", {"group_id": jid, "instance": instance}, "name"
+        )
+        if existing:
+            frappe.db.set_value("WhatsApp Group", existing, values)
+        else:
+            doc = frappe.new_doc("WhatsApp Group")
+            doc.group_id = jid
+            doc.instance = instance
+            doc.update(values)
+            doc.insert(ignore_permissions=True)
+            new += 1
+
+    frappe.db.commit()
+    return {"fetched": len(groups), "new": new}
+
+
+@frappe.whitelist()
+def check_connection(instance):
+    """Reconcile status and, if connected, sync the instance's WhatsApp groups.
+
+    Invoked by the "Check Connection" button.
+    """
+    status = reconcile_instance_status(instance)
+    result = {"status": status}
+    if status == "Open":
+        try:
+            result["groups"] = sync_groups(instance)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "WuzAPI sync_groups")
+    return result

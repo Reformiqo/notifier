@@ -1,17 +1,32 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-08-09 13:27:37.566615",
+ "autoname": "hash",
+ "creation": "2026-07-06 21:00:00.000000",
  "doctype": "DocType",
+ "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "instance",
-  "group_id",
-  "column_break_fdmd",
   "group_name",
-  "picture_url"
+  "group_id",
+  "instance",
+  "participant_count"
  ],
  "fields": [
+  {
+   "fieldname": "group_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Group Name"
+  },
+  {
+   "description": "WhatsApp group JID (the send target). Auto-filled from WuzAPI.",
+   "fieldname": "group_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Group ID (JID)",
+   "read_only": 1
+  },
   {
    "fieldname": "instance",
    "fieldtype": "Link",
@@ -20,29 +35,15 @@
    "options": "WhatsApp Instance"
   },
   {
-   "fieldname": "group_id",
-   "fieldtype": "Data",
-   "label": "Group ID"
-  },
-  {
-   "fieldname": "group_name",
-   "fieldtype": "Data",
-   "label": "Group Name"
-  },
-  {
-   "fieldname": "picture_url",
-   "fieldtype": "Attach",
-   "label": "Picture URL"
-  },
-  {
-   "fieldname": "column_break_fdmd",
-   "fieldtype": "Column Break"
+   "fieldname": "participant_count",
+   "fieldtype": "Int",
+   "label": "Participants",
+   "read_only": 1
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-09 13:31:35.682210",
+ "modified": "2026-07-06 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Notifier",
  "name": "WhatsApp Group",
@@ -64,5 +65,6 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "group_name"
 }
