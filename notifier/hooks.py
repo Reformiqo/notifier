@@ -85,6 +85,11 @@ app_license = "mit"
 # before_install = "notifier.install.before_install"
 # after_install = "notifier.install.after_install"
 
+# Set up the WhatsApp Notification channel on both fresh installs and upgrades
+# (patches are skipped on a fresh install, so a hook is required here).
+after_install = "notifier.setup.setup_notification_channel"
+after_migrate = "notifier.setup.setup_notification_channel"
+
 # Uninstallation
 # ------------
 
