@@ -8,3 +8,4 @@ notifier.patches.rename_settings_doctype
 notifier.patches.remove_unused_doctypes
 notifier.patches.setup_whatsapp_notification
 notifier.patches.setup_whatsapp_group_channel
+notifier.patches.reapply_whatsapp_channel
