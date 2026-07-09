@@ -27,6 +27,16 @@ class WhatsAppMessage(Document):
         the transaction that created this message: the record stays with
         status "Failed" so it can be inspected and re-sent.
         """
+        if anti_ban.sending_paused():
+            # Global kill switch (WhatsApp Settings > Enabled). Park, don't
+            # drop - the queue drain sends these once sending is re-enabled.
+            self.db_set("status", "Queued", update_modified=False)
+            frappe.msgprint(
+                "WhatsApp message queued: sending is disabled in WhatsApp Settings",
+                alert=True,
+            )
+            return
+
         allowed, reason = anti_ban.can_send(self.instance)
         if not allowed:
             # Parked, not dropped - the scheduled queue drain retries tomorrow.

@@ -60,6 +60,16 @@ def enabled():
     return bool(get_conf().enable_anti_ban)
 
 
+def sending_paused():
+    """True when the global WhatsApp Settings "Enabled" switch is off.
+
+    This is the kill switch: with it off, no message leaves the site -
+    dispatch parks everything as Queued and the drain job stays idle. Use it
+    while a number is under review by WhatsApp or freshly warmed up.
+    """
+    return not frappe.db.get_single_value("WhatsApp Settings", "enabled")
+
+
 # ---------------------------------------------------------------------------
 # Pacing
 # ---------------------------------------------------------------------------
@@ -177,6 +187,8 @@ def flush_queued_messages():
     Runs from scheduler_events (see hooks.py). Instances still at their cap
     keep their backlog; other instances continue to drain.
     """
+    if sending_paused():
+        return
     names = frappe.get_all(
         "WhatsApp Message",
         filters={"status": "Queued"},
