@@ -4,7 +4,7 @@
 import frappe
 from frappe.model.document import Document
 
-from notifier import wuzapi
+from notifier import anti_ban, wuzapi
 from notifier.api import send_media_message
 
 
@@ -17,9 +17,32 @@ class WhatsAppMessage(Document):
             self.to = self.to[1:]
 
     def after_insert(self):
-        # A send failure (e.g. the WuzAPI gateway returning 500) must not abort
-        # the transaction that created this message: the record stays with
-        # status "Failed" so it can be inspected and re-sent.
+        self.dispatch()
+
+    def dispatch(self):
+        """Send this message, gated by anti-ban protection.
+
+        Also called by ``anti_ban.flush_queued_messages`` to drain the backlog.
+        A send failure (e.g. the WuzAPI gateway returning 500) must not abort
+        the transaction that created this message: the record stays with
+        status "Failed" so it can be inspected and re-sent.
+        """
+        allowed, reason = anti_ban.can_send(self.instance)
+        if not allowed:
+            # Parked, not dropped - the scheduled queue drain retries tomorrow.
+            self.db_set("status", "Queued", update_modified=False)
+            frappe.msgprint(f"WhatsApp message queued: {reason}", alert=True)
+            return
+
+        if not anti_ban.number_exists(self.instance, self.to):
+            self.db_set("status", "Skipped", update_modified=False)
+            frappe.msgprint(
+                f"WhatsApp message skipped: {self.to} is not on WhatsApp",
+                indicator="orange",
+                alert=True,
+            )
+            return
+
         try:
             if self.content_type == "text":
                 self.send_text_message()

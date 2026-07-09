@@ -5,14 +5,20 @@ import frappe
 import re
 from frappe.model.document import Document
 
+from notifier import anti_ban
+
 
 class WhatsAppBroadcast(Document):
 
     def on_submit(self):
         try:
+            # Long queue with a generous timeout: anti-ban pacing means a big
+            # broadcast deliberately takes minutes, not seconds.
             frappe.enqueue(
                 "notifier.notifier.doctype.whatsapp_broadcast.whatsapp_broadcast.send_broadcast",
                 broadcast_id=self.name,
+                queue="long",
+                timeout=4 * 3600,
             )
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), "WhatsApp Broadcast Error")
@@ -63,6 +69,11 @@ def send_broadcast(broadcast_id):
 
         if not broadcast.template:
             frappe.throw("Please select a template for the broadcast")
+
+        template = frappe.get_doc("WhatsApp Template", broadcast.template)
+        broadcast.db_set("status", "Sending", update_modified=False)
+        sent = failed = 0
+
         contacts = frappe.db.get_list("Contact", ["name"])
         for contact in contacts:
             contact_doc = frappe.get_doc("Contact", contact.name)
@@ -76,28 +87,31 @@ def send_broadcast(broadcast_id):
                         message.to = contact_doc.custom_primary_contact
                         message.type = "Broadcast"
                         message.broadcast_id = broadcast.name
-                        template = frappe.get_doc(
-                            "WhatsApp Template", broadcast.template
-                        )
                         # Replace template variables with contact field values
                         message.message = replace_template_variables(
                             template.message, contact_doc
                         )
-                        if template.content_type == "text":
-                            message.content_type = "text"
-                        elif template.content_type == "image":
-                            message.content_type = "image"
-                        elif template.content_type == "video":
-                            message.content_type = "video"
-                        elif template.content_type == "audio":
-                            message.content_type = "audio"
-                        elif template.content_type == "document":
-                            message.content_type = "document"
-
-                        attach = frappe.utils.get_url(template.attach)
-                        message.attach = attach
+                        message.content_type = template.content_type or "text"
+                        if template.attach:
+                            message.attach = frappe.utils.get_url(template.attach)
+                        # after_insert dispatches through the anti-ban gate:
+                        # status ends up Sent / Failed / Skipped / Queued.
                         message.save()
                         frappe.db.commit()
+
+                        if message.status == "Sent":
+                            sent += 1
+                        elif message.status in ("Failed", "Skipped"):
+                            failed += 1
+                        # Queued messages drain later via flush_queued_messages.
+
+                        # Anti-ban pacing: never blast messages back-to-back.
+                        anti_ban.pause_between_sends()
+
+        broadcast.db_set("sent_count", sent, update_modified=False)
+        broadcast.db_set("failed_count", failed, update_modified=False)
+        broadcast.db_set("status", "Sent", update_modified=False)
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "WhatsApp Broadcast Error")
+        frappe.db.set_value("WhatsApp Broadcast", broadcast_id, "status", "Failed")
         frappe.throw(str(e))

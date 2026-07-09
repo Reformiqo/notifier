@@ -9,7 +9,15 @@
   "enabled",
   "base_url",
   "api_token",
-  "n8n_url"
+  "n8n_url",
+  "anti_ban_section",
+  "enable_anti_ban",
+  "verify_numbers",
+  "enable_warmup",
+  "column_break_anti_ban",
+  "min_delay_seconds",
+  "max_delay_seconds",
+  "daily_message_limit"
  ],
  "fields": [
   {
@@ -35,12 +43,68 @@
    "fieldname": "n8n_url",
    "fieldtype": "Data",
    "label": "N8N URL"
+  },
+  {
+   "fieldname": "anti_ban_section",
+   "fieldtype": "Section Break",
+   "label": "Anti-Ban Protection"
+  },
+  {
+   "default": "1",
+   "description": "Protect the WhatsApp number from being banned: pace outgoing messages, verify recipients, cap daily volume and warm up new instances.",
+   "fieldname": "enable_anti_ban",
+   "fieldtype": "Check",
+   "label": "Enable Anti-Ban Protection"
+  },
+  {
+   "default": "1",
+   "depends_on": "enable_anti_ban",
+   "description": "Check each recipient via WuzAPI /user/check before the send. Numbers not registered on WhatsApp are skipped - messaging dead numbers is a strong spam signal.",
+   "fieldname": "verify_numbers",
+   "fieldtype": "Check",
+   "label": "Verify Numbers Exist on WhatsApp"
+  },
+  {
+   "default": "1",
+   "depends_on": "enable_anti_ban",
+   "description": "Instances younger than 3 weeks get a ramped daily limit (20 → 50 → 100 → 150) regardless of the configured cap. New numbers sending at volume are banned fastest.",
+   "fieldname": "enable_warmup",
+   "fieldtype": "Check",
+   "label": "Warm Up New Instances"
+  },
+  {
+   "fieldname": "column_break_anti_ban",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "5",
+   "depends_on": "enable_anti_ban",
+   "description": "Minimum pause between consecutive messages in broadcasts and queue drains.",
+   "fieldname": "min_delay_seconds",
+   "fieldtype": "Int",
+   "label": "Min Delay Between Messages (seconds)"
+  },
+  {
+   "default": "15",
+   "depends_on": "enable_anti_ban",
+   "description": "Maximum pause - the actual delay is randomized between min and max so the sending pattern doesn't look mechanical.",
+   "fieldname": "max_delay_seconds",
+   "fieldtype": "Int",
+   "label": "Max Delay Between Messages (seconds)"
+  },
+  {
+   "default": "200",
+   "depends_on": "enable_anti_ban",
+   "description": "Maximum messages per instance per day. Messages over the cap are queued and sent the next day. 0 = unlimited.",
+   "fieldname": "daily_message_limit",
+   "fieldtype": "Int",
+   "label": "Daily Message Limit (per instance)"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-07 00:00:00.000000",
+ "modified": "2026-07-09 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Notifier",
  "name": "WhatsApp Settings",
