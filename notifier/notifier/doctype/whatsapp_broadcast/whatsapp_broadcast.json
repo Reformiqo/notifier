@@ -12,6 +12,8 @@
   "column_break_bwal",
   "template",
   "group",
+  "sent_count",
+  "failed_count",
   "amended_from"
  ],
  "fields": [
@@ -63,6 +65,20 @@
    "fieldtype": "Column Break"
   },
   {
+   "fieldname": "sent_count",
+   "fieldtype": "Int",
+   "label": "Sent Count",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "failed_count",
+   "fieldtype": "Int",
+   "label": "Failed Count",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -77,7 +93,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-16 23:01:13.834810",
+ "modified": "2026-07-09 00:00:01.000000",
  "modified_by": "Administrator",
  "module": "Notifier",
  "name": "WhatsApp Broadcast",

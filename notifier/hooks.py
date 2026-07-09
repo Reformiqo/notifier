@@ -162,6 +162,8 @@ scheduler_events = {
 		# Keep WhatsApp Instance status in sync with WuzAPI. Webhooks may be
 		# unreachable (e.g. site behind localhost), so we also poll every 2 min.
 		"*/2 * * * *": ["notifier.api.check_instance_status"],
+		# Drain WhatsApp Messages parked as "Queued" by the anti-ban daily cap.
+		"*/10 * * * *": ["notifier.anti_ban.flush_queued_messages"],
 	}
 }
 

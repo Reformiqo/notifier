@@ -45,7 +45,15 @@ class WhatsAppNotification(Notification):
 		try:
 			self.send_whatsapp(doc, context)
 		except Exception:
-			self.log_error("Failed to send WhatsApp Notification")
+			# frappe.get_traceback() without with_context: the Jinja `context`
+			# in these frames holds safe_exec module wrappers that fail
+			# deepcopy inside frappe's traceback variable printer.
+			frappe.log_error(
+				message=frappe.get_traceback(),
+				title=f"Failed to send WhatsApp Notification: {self.name}",
+				reference_doctype=self.doctype,
+				reference_name=self.name,
+			)
 
 		if self.send_system_notification:
 			self.create_system_notification(doc, context)
