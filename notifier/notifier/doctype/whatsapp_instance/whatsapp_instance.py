@@ -1,6 +1,7 @@
 # Copyright (c) 2025, royalsmb and contributors
 # For license information, please see license.txt
 
+import time
 import uuid
 from datetime import datetime
 
@@ -42,12 +43,21 @@ def connect_instance(instance):
     except Exception:
         frappe.logger().info("session/connect no-op for %s", instance)
 
-    qr = wuzapi.session_qr(token)
-    qr_data = qr.get("data") or {}
-    qr_code = qr_data.get("QRCode") or qr_data.get("qrcode")
-
-    if not qr_code:
-        # No QR usually means the instance is already logged in.
+    # whatsmeow needs a moment after connecting before it emits the QR, and
+    # /session/qr briefly 500s during that window. Poll for a few seconds
+    # rather than failing on the first (empty) response.
+    qr = {}
+    qr_code = None
+    for _ in range(6):
+        try:
+            qr = wuzapi.session_qr(token)
+            qr_data = qr.get("data") or {}
+            qr_code = qr_data.get("QRCode") or qr_data.get("qrcode")
+        except Exception:
+            qr_code = None  # not connected yet; retry
+        if qr_code:
+            break
+        # No QR may mean the instance is already logged in.
         if wuzapi.frappe_status_from_session(wuzapi.session_status(token)) == "Open":
             frappe.db.set_value(
                 "WhatsApp Instance", instance, {"status": "Open", "qr_code": None}
@@ -58,7 +68,14 @@ def connect_instance(instance):
                 "file_url": None,
                 "message": "Instance already connected",
             }
-        frappe.throw(f"No QR code returned by WuzAPI for {instance}: {qr}")
+        time.sleep(1.5)
+
+    if not qr_code:
+        frappe.throw(
+            f"No QR code returned by WuzAPI for {instance}. "
+            "The session connected but no QR was produced in time — try again. "
+            f"Last response: {qr}"
+        )
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"qrcode_{instance}_{timestamp}.png"
