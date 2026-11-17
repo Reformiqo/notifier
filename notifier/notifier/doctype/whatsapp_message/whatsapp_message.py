@@ -1,6 +1,8 @@
 # Copyright (c) 2025, royalsmb and contributors
 # For license information, please see license.txt
 
+import re
+
 import frappe
 from frappe.model.document import Document
 
@@ -13,8 +15,9 @@ class WhatsAppMessage(Document):
         # When sending to a group, the target is the group's JID.
         if self.get("send_to") == "Group" and self.get("group"):
             self.to = frappe.db.get_value("WhatsApp Group", self.group, "group_id")
-        if self.to and self.to.startswith("+"):
-            self.to = self.to[1:]
+        # WuzAPI wants digits only: drop +, spaces, dashes and any trunk zero.
+        if self.to and "@" not in self.to:
+            self.to = re.sub(r"^0+", "", re.sub(r"\D", "", self.to))
 
     def after_insert(self):
         if self.content_type == "text":
@@ -37,4 +40,4 @@ class WhatsAppMessage(Document):
             return response
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), "WhatsApp Message Error")
-            frappe.throw(f"Failed to send WhatsApp message: {str(e)}")
+            frappe.throw(f"WhatsApp send to {self.to} via {self.instance} failed: {e}")

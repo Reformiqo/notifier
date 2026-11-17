@@ -74,7 +74,11 @@ def _request(method, path, token=None, admin=False, **kwargs):
 
     kwargs.setdefault("timeout", REQUEST_TIMEOUT)
     resp = requests.request(method, f"{base}{path}", headers=headers, **kwargs)
-    resp.raise_for_status()
+    if not resp.ok:
+        # WuzAPI explains the rejection in the body; raise_for_status drops it.
+        raise requests.HTTPError(
+            f"WuzAPI {resp.status_code} on {path}: {resp.text[:500]}", response=resp
+        )
     try:
         return resp.json()
     except ValueError:
