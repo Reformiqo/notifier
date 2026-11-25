@@ -56,6 +56,19 @@ Open **WhatsApp Settings** (single doctype) and set:
 Create a **WhatsApp Message** (choose the instance, recipient `to`, and either
 text or an attachment). It is sent on insert.
 
+## 5. Send a document from its form ("Actions > Send WhatsApp")
+
+Every doctype that has an enabled **Notification** with channel **WhatsApp**
+gets an **Actions > Send WhatsApp** button on its form. It sends the document
+right away through that Notification's WhatsApp Instance (no WhatsApp Web tab,
+no login): the Notification's message, plus the print-format PDF as a file when
+**Attach Print** is ticked. The recipient defaults to the Notification's phone
+field and can be edited in the dialog. 10-digit numbers get the
+**Default Country Code** from WhatsApp Settings (91 by default).
+
+If the site has an older Client Script that adds a "Send WhatsApp" button
+opening `wa.me`, disable it; the app's button replaces it.
+
 ## Auth model (important)
 
 Unlike Evolution API (one global `apikey` + instance name in the URL), WuzAPI

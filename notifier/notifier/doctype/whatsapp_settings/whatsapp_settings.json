@@ -9,6 +9,7 @@
   "enabled",
   "base_url",
   "api_token",
+  "default_country_code",
   "n8n_url"
  ],
  "fields": [
@@ -32,6 +33,13 @@
    "label": "WuzAPI Admin Token"
   },
   {
+   "default": "91",
+   "description": "Prefixed to 10-digit phone numbers that have no country code (e.g. 91 for India).",
+   "fieldname": "default_country_code",
+   "fieldtype": "Data",
+   "label": "Default Country Code"
+  },
+  {
    "fieldname": "n8n_url",
    "fieldtype": "Data",
    "label": "N8N URL"
@@ -40,7 +48,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-07 00:00:00.000000",
+ "modified": "2026-11-25 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Notifier",
  "name": "WhatsApp Settings",

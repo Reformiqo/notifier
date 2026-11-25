@@ -13,6 +13,9 @@ A WhatsApp Notification reuses the native Notification config plus custom fields
       - Group: ``whatsapp_group`` selects a WhatsApp Group (sent to its JID)
   * ``attach_print`` / ``print_format`` -> also send the document's PDF
 
+The same config also drives the "Actions > Send WhatsApp" button on the form
+(see ``notifier/send.py`` and ``public/js/send_whatsapp.js``).
+
 Sending goes through the WhatsApp Message doctype, so every alert is logged and
 uses the same WuzAPI pipeline as manual messages.
 """
@@ -77,10 +80,15 @@ class WhatsAppNotification(Notification):
 				out.append(n)
 		return out
 
-	def send_whatsapp(self, doc, context):
-		targets = self.get_recipients(doc)
+	def send_whatsapp(self, doc, context, targets=None):
+		"""Send the alert through the WhatsApp Instance (WuzAPI).
+
+		``targets`` overrides the configured recipients (used by the manual
+		"Send WhatsApp" button). Returns the names of the WhatsApp Messages sent.
+		"""
+		targets = targets or self.get_recipients(doc)
 		if not targets:
-			return
+			return []
 
 		body = self.message or ""
 		if "{" in body:
@@ -89,11 +97,15 @@ class WhatsAppNotification(Notification):
 
 		pdf_file_url = self.build_pdf_file(doc) if self.attach_print else None
 
+		sent = []
 		for target in targets:
 			if body:
-				self.queue_whatsapp_message(target, "text", message=body)
+				sent.append(self.queue_whatsapp_message(target, "text", message=body))
 			if pdf_file_url:
-				self.queue_whatsapp_message(target, "document", message="", attach=pdf_file_url)
+				sent.append(
+					self.queue_whatsapp_message(target, "document", message="", attach=pdf_file_url)
+				)
+		return sent
 
 	def build_pdf_file(self, doc):
 		"""Render the document's print format to a PDF File and return its url."""
@@ -118,3 +130,4 @@ class WhatsAppNotification(Notification):
 			msg.attach = attach
 		# WhatsAppMessage.after_insert dispatches the send via WuzAPI.
 		msg.insert(ignore_permissions=True)
+		return msg.name

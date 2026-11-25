@@ -27,6 +27,8 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/notifier/css/notifier.css"
 # app_include_js = "/assets/notifier/js/notifier.js"
+# "Actions > Send WhatsApp" on forms of doctypes with a WhatsApp Notification.
+app_include_js = "/assets/notifier/js/send_whatsapp.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/notifier/css/notifier.css"
@@ -117,6 +119,9 @@ after_migrate = "notifier.setup.setup_notification_channel"
 # See frappe.core.notifications.get_notification_config
 
 # notification_config = "notifier.notifications.get_notification_config"
+
+# Lists the doctypes that get the "Send WhatsApp" button.
+boot_session = "notifier.send.boot_session"
 
 # Permissions
 # -----------
