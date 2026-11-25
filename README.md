@@ -56,6 +56,25 @@ Open **WhatsApp Settings** (single doctype) and set:
 Create a **WhatsApp Message** (choose the instance, recipient `to`, and either
 text or an attachment). It is sent on insert.
 
+## 5. Send a bill's PDF from the list or form ("Actions > Send WhatsApp")
+
+1. In a list (e.g. Sales Invoice), tick one or more documents, or open one.
+2. Click **Actions > Send WhatsApp**.
+3. Choose the **WhatsApp Instance** and **Print Format** (both are remembered
+   for next time), optionally edit the message, and click **Send**.
+
+Each document's PDF is sent to its own customer / supplier number through that
+instance - nothing opens in the browser. The number is taken from the document
+(`contact_mobile`, `mobile_no`, any custom `*phone*`/`*mobile*` field), then the
+contact person, then the customer / supplier and its contacts. 10-digit numbers
+get the **Default Country Code** from WhatsApp Settings (91 by default). More
+than 5 documents are sent in the background and the result pops up when done.
+A comment is added on each document that was sent.
+
+The button appears on printable doctypes that have a customer, supplier or
+party. If the site has older Client Scripts adding a "Send WhatsApp" button
+that opens `wa.me`, disable them.
+
 ## Auth model (important)
 
 Unlike Evolution API (one global `apikey` + instance name in the URL), WuzAPI
