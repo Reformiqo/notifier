@@ -15,9 +15,10 @@ def normalize_phone(phone):
     10-digit local numbers (WhatsApp needs the full international number)."""
     phone = re.sub(r"^0+", "", re.sub(r"\D", "", phone or ""))
     if len(phone) == 10:
+        # get_single_value returns "" (not None) for a never-saved field, so
+        # fall back to the field default on any empty value.
         code = frappe.db.get_single_value("WhatsApp Settings", "default_country_code")
-        # None = setting never saved; fall back to the field default.
-        code = re.sub(r"\D", "", "91" if code is None else code)
+        code = re.sub(r"\D", "", code or "") or "91"
         phone = f"{code}{phone}"
     return phone
 
