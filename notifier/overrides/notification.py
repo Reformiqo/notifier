@@ -13,9 +13,6 @@ A WhatsApp Notification reuses the native Notification config plus custom fields
       - Group: ``whatsapp_group`` selects a WhatsApp Group (sent to its JID)
   * ``attach_print`` / ``print_format`` -> also send the document's PDF
 
-The same config also drives the "Actions > Send WhatsApp" button on the form
-(see ``notifier/send.py`` and ``public/js/send_whatsapp.js``).
-
 Sending goes through the WhatsApp Message doctype, so every alert is logged and
 uses the same WuzAPI pipeline as manual messages.
 """
